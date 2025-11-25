@@ -25,18 +25,30 @@ SECRET_KEY = 'django-insecure-&fxpsi+0n-qvv!&%4w&2e^zjm^1z&-d5y(s4^+9q5uw)$n!(@*
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*'] 
+# Replace '192.168.1.5' with YOUR actual IP address from Step 1.
+# Or use ['*'] to allow everyone (safe for local dev).
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    # Default Django Apps (Keep these!)
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Third-Party Tools (We installed these)
+    'django_htmx',
+    'django_extensions',
+
+    # Your Apps (The ones you created)
+    'core',
+    'users',
+    'academics',
 ]
 
 MIDDLEWARE = [
@@ -47,6 +59,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+    # ADD THIS LINE HERE:
+    'django_htmx.middleware.HtmxMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -120,3 +135,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Redirect here after a successful login
+LOGIN_REDIRECT_URL = 'faculty_dashboard'
+LOGOUT_REDIRECT_URL = 'login'

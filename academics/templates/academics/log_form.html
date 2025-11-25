@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <a href="{% url 'faculty_dashboard' %}" class="text-decoration-none text-muted mb-3 d-inline-block">
+            <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
+        </a>
+
+        <div class="card shadow border-0">
+            <div class="card-header bg-primary text-white p-4">
+                <h4 class="mb-0"><i class="fa-regular fa-calendar-check me-2"></i> Log Class Engagement</h4>
+            </div>
+            
+            <div class="card-body p-5">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <!-- 1. Organization Row -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Department</label>
+                            <select name="department" class="form-select"
+                                hx-get="{% url 'get_semesters' %}" hx-target="#id_semester" hx-trigger="change">
+                                <option selected value="">Select...</option>
+                                {% for dept in departments %}
+                                    <option value="{{ dept.id }}">{{ dept.name }} ({{ dept.code }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Semester</label>
+                            <select name="semester" id="id_semester" class="form-select" 
+                                hx-get="{% url 'get_batches' %}" hx-target="#id_batch" hx-include="[name='department']" hx-trigger="change">
+                                <option>Select Dept first...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 2. Batch & Subject Row -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Batch</label>
+                            <select name="batch" id="id_batch" class="form-select" required>
+                                <option value="">Select Semester first...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Subject</label>
+                            <!-- When Subject changes, fetch Chapters -->
+                            <select name="subject" class="form-select" 
+                                hx-get="{% url 'get_chapters' %}" hx-target="#id_chapter" hx-trigger="change" required>
+                                <option value="">Select Subject...</option>
+                                {% for subj in my_subjects %}
+                                    <option value="{{ subj.id }}">{{ subj.name }}</option>
+                                {% empty %}
+                                    <option disabled>No subjects assigned</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 3. Chapter & Topic Row (NEW!) -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Chapter</label>
+                            <!-- When Chapter changes, fetch Topics -->
+                            <select name="chapter" id="id_chapter" class="form-select" 
+                                hx-get="{% url 'get_topics' %}" hx-target="#id_topic" hx-trigger="change" required>
+                                <option value="">Select Subject first...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Topic</label>
+                            <select name="topic" id="id_topic" class="form-select" required>
+                                <option value="">Select Chapter first...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 4. Date & Duration -->
+                     <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Date</label>
+                            <input type="date" name="date" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Duration</label>
+                            <div class="input-group">
+                                <input type="number" name="duration" value="1.0" step="0.5" class="form-control">
+                                <span class="input-group-text">Hrs</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">Save Entry</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

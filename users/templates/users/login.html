@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- 'my-auto': Pushes the row to the vertical center of the available space -->
+<div class="row justify-content-center w-100 my-auto">
+    <div class="col-md-6 col-lg-4">
+        
+        <!-- The White Card -->
+        <div class="card shadow-lg p-3 border-0 rounded-4 p-3">
+            <div class="card-body">
+                
+                <!-- Title -->
+                <h2 class="text-center mb-5 text-dark fw-light">Faculty Dashboard</h2>
+                
+                <!-- Error Messages -->
+                {% if form.errors %}
+                    <div class="alert alert-danger py-2 small text-center mb-4 rounded-pill">
+                        <i class="fa-solid fa-circle-exclamation me-1"></i> Invalid credentials.
+                    </div>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Username Field -->
+                    <div class="mb-4">
+                        <label for="id_username" class="form-label text-secondary small ps-3 mb-1">Enter your Username</label>
+                        <input type="text" name="username" 
+                               class="form-control form-control-lg rounded-pill border px-4 fs-6 shadow-sm bg-white" 
+                               placeholder="" required id="id_username">
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="mb-5">
+                        <label for="id_password" class="form-label text-secondary small ps-3 mb-1">Enter your Password</label>
+                        <input type="password" name="password" 
+                               class="form-control form-control-lg rounded-pill border px-4 fs-6 shadow-sm bg-white" 
+                               placeholder="" required id="id_password">
+                    </div>
+
+                    <!-- Login Button -->
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill py-2 shadow-sm" 
+                                style="background-color: #007bff; border: none;">
+                            --Login--
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
