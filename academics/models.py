@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 # ==========================================
 # 1. ORGANIZATION LAYER (Who are we?)
@@ -8,6 +9,8 @@ from django.conf import settings
 class Department(models.Model):
     name = models.CharField(max_length=100) # e.g. "Computer Engineering"
     code = models.CharField(max_length=20, unique=True) # e.g. "CP08"
+    
+    # Tracks the current semester for this department (e.g. CP08 is currently in Sem 3)
     current_semester = models.ForeignKey('Semester', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
@@ -21,7 +24,7 @@ class AcademicYear(models.Model):
         return self.name
 
 class AcademicSession(models.Model):
-    # This is the Calendar Time (e.g. "2025-2026")
+    # This is the Calendar Time (e.g. "June 2024")
     # The "Fresh Start" logic relies on this table.
     name = models.CharField(max_length=20, unique=True) 
     is_active = models.BooleanField(default=False) # Only ONE should be True at a time
@@ -73,7 +76,7 @@ class Chapter(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     name = models.CharField(max_length=200) # e.g. "Atmospheric Dynamics"
     
-    # AUDIT TRAIL: We track who added it, but we don't block it with 'is_approved' anymore
+    # AUDIT TRAIL: We track who added it
     added_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
@@ -102,31 +105,19 @@ class ClassLog(models.Model):
     # The Hierarchy of the Log
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
-    topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
     
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.subject} - {self.date}"
-
-
-
-class ClassLog(models.Model):
-    faculty = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    session = models.ForeignKey(AcademicSession, on_delete=models.CASCADE)
-    
-    date = models.DateField()
-    duration_hours = models.DecimalField(max_digits=4, decimal_places=2)
-    
-    # The Full Hierarchy
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
-    
-    # NEW: Explicit links to Chapter and Topic
+    # NEW: Explicit links to Chapter and Topic (as per your latest requirement)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
     
     created_at = models.DateTimeField(auto_now_add=True)
+
+    # Update this field:
+    duration_hours = models.DecimalField(
+        max_digits=8, 
+        decimal_places=2,
+        validators=[MinValueValidator(0.1), MaxValueValidator(80.0)] # Limits input
+    )
 
     def __str__(self):
         return f"{self.subject} - {self.topic} ({self.date})"

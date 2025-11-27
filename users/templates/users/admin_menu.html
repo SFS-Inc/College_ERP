@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <!-- Header Section -->
+    <div class="mb-5">
+        <a href="{% url 'faculty_dashboard' %}" class="text-decoration-none text-secondary mb-3 d-inline-block">
+            <i class="fa-solid fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+        <h1 class="display-5 fw-bold text-dark">Admin Controls</h1>
+        <p class="text-muted lead">Manage college structure, faculty access, and academic settings.</p>
+    </div>
+
+    <!-- Admin Tools Grid -->
+    <div class="row g-4">
+        
+        <!-- Card 1: Manage Subjects -->
+        <div class="col-md-6 col-lg-4">
+            <!-- 'text-decoration-none' removes the underline from the link -->
+            <a href="{% url 'manage_subjects' %}" class="text-decoration-none">
+                <div class="card h-100 border shadow-sm hover-shadow transition">
+                    <div class="card-body p-4 d-flex align-items-start">
+                        <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-3 me-3">
+                            <i class="fa-solid fa-book fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title fw-bold text-dark mb-1">Manage Subjects</h5>
+                            <p class="card-text text-muted small">Create, edit, or assign subjects to faculty members.</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Card 2: Academic Sessions -->
+        <div class="col-md-6 col-lg-4">
+            <a href="{% url 'manage_sessions' %}" class="text-decoration-none">
+                <div class="card h-100 border shadow-sm hover-shadow transition">
+                    <div class="card-body p-4 d-flex align-items-start">
+                        <div class="bg-success bg-opacity-10 text-success rounded-3 p-3 me-3">
+                            <i class="fa-solid fa-calendar-days fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title fw-bold text-dark mb-1">Academic Sessions</h5>
+                            <p class="card-text text-muted small">Start new semesters and archive old logs.</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Card 3: Manage Faculty (Placeholder) -->
+        <div class="col-md-6 col-lg-4">
+            <a href="{% url 'manage_faculty' %}" class="text-decoration-none">
+                <div class="card h-100 border shadow-sm hover-shadow transition">
+                    <div class="card-body p-4 d-flex align-items-start">
+                        <div class="bg-warning bg-opacity-10 text-warning rounded-3 p-3 me-3">
+                            <i class="fa-solid fa-users fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title fw-bold text-dark mb-1">Manage Faculty</h5>
+                            <p class="card-text text-muted small">Add new teachers and manage permissions.</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <a href="#" class="text-decoration-none">
+                <div class="card h-100 border shadow-sm hover-shadow transition">
+                    <div class="card-body p-4 d-flex align-items-start">
+                        <div class="bg-warning bg-opacity-10 text-warning rounded-3 p-3 me-3">
+                            <i class="fa-solid fa-users fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title fw-bold text-dark mb-1">Manage Batch</h5>
+                            <p class="card-text text-muted small">Add/Remove Batch lol.</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <a href="{% url 'admin_menu' %}" class="text-decoration-none">
+                <div class="card h-100 border shadow-sm hover-shadow transition">
+                    <div class="card-body p-4 d-flex align-items-start">
+                        <div class="bg-warning bg-opacity-10 text-warning rounded-3 p-3 me-3">
+                            <i class="fa-solid fa-users fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title fw-bold text-dark mb-1">Manage Admin</h5>
+                            <p class="card-text text-muted small">Add new admin and manage permissions.</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <a href="#" class="text-decoration-none">
+                <div class="card h-100 border shadow-sm hover-shadow transition">
+                    <div class="card-body p-4 d-flex align-items-start">
+                        <div class="bg-warning bg-opacity-10 text-warning rounded-3 p-3 me-3">
+                            <i class="fa-solid fa-users fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title fw-bold text-dark mb-1">Manage Chapters</h5>
+                            <p class="card-text text-muted small">Create, edit Subject for each Subject</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <a href="#" class="text-decoration-none">
+                <div class="card h-100 border shadow-sm hover-shadow transition">
+                    <div class="card-body p-4 d-flex align-items-start">
+                        <div class="bg-warning bg-opacity-10 text-warning rounded-3 p-3 me-3">
+                            <i class="fa-solid fa-users fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title fw-bold text-dark mb-1">Manage Faculty Account</h5>
+                            <p class="card-text text-muted small">Manage Faculty Login</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <a href="#" class="text-decoration-none">
+                <div class="card h-100 border shadow-sm hover-shadow transition">
+                    <div class="card-body p-4 d-flex align-items-start">
+                        <div class="bg-warning bg-opacity-10 text-warning rounded-3 p-3 me-3">
+                            <i class="fa-solid fa-users fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title fw-bold text-dark mb-1">Manage {container.placeholder}</h5>
+                            <p class="card-text text-muted small">Manage {container.placeholder}</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+
+            <div class="col-md-6 col-lg-4">
+            <a href="#" class="text-decoration-none">
+                <div class="card h-100 border shadow-sm hover-shadow transition">
+                    <div class="card-body p-4 d-flex align-items-start">
+                        <div class="bg-warning bg-opacity-10 text-warning rounded-3 p-3 me-3">
+                            <i class="fa-solid fa-users fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title fw-bold text-dark mb-1">Coming Soon..</h5>
+                            <p class="card-text text-muted small">Coming Soon...</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+
+
+
+
+    </div>
+</div>
+
+<style>
+    /* Simple hover effect for cards */
+    .hover-shadow:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+        transition: all .3s ease;
+    }
+    .transition {
+        transition: all .3s ease;
+    }
+</style>
+{% endblock %}

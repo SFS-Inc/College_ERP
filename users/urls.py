@@ -10,6 +10,8 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 
     path('dashboard/', views.faculty_dashboard, name='faculty_dashboard'),
+    path('profile/', views.profile, name='profile'),
+    path('admin-menu/', views.admin_menu, name='admin_menu'), # You need to add this view function too!
 
 
 ]

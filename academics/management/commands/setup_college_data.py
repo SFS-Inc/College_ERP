@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from django.contrib.auth.models import Group
 from academics.models import Department, AcademicYear, Semester, Batch, AcademicSession
 
 class Command(BaseCommand):
@@ -6,6 +7,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         self.stdout.write("Initializing College Data...")
+
+        # 0. Create User Groups
+        faculty_group, _ = Group.objects.get_or_create(name='Faculty')
+        admin_group, _ = Group.objects.get_or_create(name='Faculty_Admin') # <-- The new group
+
+        admin_group, _ = Group.objects.get_or_create(name='Faculty_Admin') 
+        self.stdout.write("Created Groups: Faculty, Student, Faculty_Admin")
 
         # 1. Academic Session (The "Time Bucket")
         session, _ = AcademicSession.objects.get_or_create(

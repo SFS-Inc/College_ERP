@@ -2,28 +2,32 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Department, Semester, Batch, Subject, ClassLog, Chapter, Topic, AcademicSession
-from .forms import SubjectForm  # Make sure forms.py exists!
+from .forms import SubjectForm, AdminSubjectForm, FacultyForm, BatchForm, SessionForm
+from django.contrib.auth.models import User, Group
 
 # ==========================================
-# 1. LOG ENGAGEMENT (The Main Feature)
+# 1. FACULTY FEATURES (Log & View)
 # ==========================================
 
 @login_required
 def log_engagement(request):
+    """
+    Renders the main form where faculty enter data.
+    """
     if request.method == "POST":
         try:
-            # Get Data
+            # 1. Get Data
             subject_id = request.POST.get('subject')
             batch_id = request.POST.get('batch')
             chapter_id = request.POST.get('chapter')
-            topic_name = request.POST.get('topic') 
+            topic_name = request.POST.get('topic') # Text input
             date = request.POST.get('date')
             duration = request.POST.get('duration')
 
             subject = Subject.objects.get(id=subject_id)
             batch = Batch.objects.get(id=batch_id)
 
-            # Smart Topic Logic
+            # 2. Smart Topic Logic
             if chapter_id:
                 chapter = Chapter.objects.get(id=chapter_id)
             else:
@@ -33,17 +37,21 @@ def log_engagement(request):
                     defaults={'added_by': request.user}
                 )
 
-            topic, _ = Topic.objects.get_or_create(
-                chapter=chapter,
-                name=topic_name
-            )
+            topic_id_or_name = request.POST.get('topic')
+            if topic_id_or_name and str(topic_id_or_name).isdigit():
+                 topic = Topic.objects.get(id=topic_id_or_name)
+            else:
+                topic, _ = Topic.objects.get_or_create(
+                    chapter=chapter,
+                    name=topic_id_or_name
+                )
 
-            # Active Session Logic
+            # 3. Get Active Session
             active_session = AcademicSession.objects.filter(is_active=True).first()
             if not active_session:
                 active_session = AcademicSession.objects.last()
 
-            # Save
+            # 4. Save
             ClassLog.objects.create(
                 faculty=request.user,
                 session=active_session,
@@ -72,8 +80,19 @@ def log_engagement(request):
 
 @login_required
 def faculty_history(request):
+    """ Shows the list of past logs for the logged-in teacher. """
     logs = ClassLog.objects.filter(faculty=request.user).select_related('subject', 'batch', 'topic').order_by('-date')
     return render(request, 'academics/history.html', {'logs': logs})
+
+@login_required
+def delete_log(request, log_id):
+    """ Allows faculty to delete their own logs. """
+    log = get_object_or_404(ClassLog, id=log_id, faculty=request.user)
+    if request.method == "POST":
+        log.delete()
+        messages.success(request, "Log entry deleted.")
+        return redirect('faculty_history')
+    return render(request, 'academics/confirm_delete.html', {'object': log, 'type': 'Log Entry'})
 
 @login_required
 def faculty_dashboard(request):
@@ -81,46 +100,154 @@ def faculty_dashboard(request):
 
 
 # ==========================================
-# 2. SUBJECT MANAGER (The Missing Part!)
+# 2. ADMIN PANEL FEATURES
 # ==========================================
 
+# --- A. Subject Manager ---
 @login_required
 def manage_subjects(request):
-    """ List all subjects that belong to the logged-in faculty member. """
-    my_subjects = Subject.objects.filter(faculty=request.user).select_related('department', 'semester')
-    return render(request, 'academics/manage_subjects.html', {'subjects': my_subjects})
+    is_admin = request.user.is_superuser or request.user.groups.filter(name='Faculty_Admin').exists()
+    if is_admin:
+        subjects = Subject.objects.all().select_related('department', 'semester', 'faculty').order_by('department', 'code')
+    else:
+        subjects = Subject.objects.filter(faculty=request.user).select_related('department', 'semester').order_by('code')
+    return render(request, 'academics/manage_subjects.html', {'subjects': subjects, 'is_admin': is_admin})
 
 @login_required
 def add_subject(request):
-    """ Create a new subject. """
+    is_admin = request.user.is_superuser or request.user.groups.filter(name='Faculty_Admin').exists()
+    FormClass = AdminSubjectForm if is_admin else SubjectForm
     if request.method == 'POST':
-        form = SubjectForm(request.POST)
+        form = FormClass(request.POST)
         if form.is_valid():
-            subject = form.save(commit=False)
-            subject.faculty = request.user
-            subject.save()
-            messages.success(request, f"Subject '{subject.name}' created successfully!")
+            if is_admin: form.save()
+            else:
+                s = form.save(commit=False)
+                s.faculty = request.user
+                s.save()
+            messages.success(request, "Subject created successfully!")
             return redirect('manage_subjects')
     else:
-        form = SubjectForm()
-    
+        form = FormClass()
     return render(request, 'academics/subject_form.html', {'form': form, 'title': 'Add New Subject'})
 
 @login_required
 def edit_subject(request, subject_id):
-    """ Edit an existing subject. """
-    subject = get_object_or_404(Subject, id=subject_id, faculty=request.user)
+    is_admin = request.user.is_superuser or request.user.groups.filter(name='Faculty_Admin').exists()
+    if is_admin: subject = get_object_or_404(Subject, id=subject_id)
+    else: subject = get_object_or_404(Subject, id=subject_id, faculty=request.user)
     
+    FormClass = AdminSubjectForm if is_admin else SubjectForm
     if request.method == 'POST':
-        form = SubjectForm(request.POST, instance=subject)
+        form = FormClass(request.POST, instance=subject)
         if form.is_valid():
             form.save()
-            messages.success(request, "Subject updated successfully!")
+            messages.success(request, "Subject updated!")
             return redirect('manage_subjects')
     else:
-        form = SubjectForm(instance=subject)
-    
+        form = FormClass(instance=subject)
     return render(request, 'academics/subject_form.html', {'form': form, 'title': f'Edit {subject.code}'})
+
+@login_required
+def delete_subject(request, subject_id):
+    is_admin = request.user.is_superuser or request.user.groups.filter(name='Faculty_Admin').exists()
+    if is_admin: subject = get_object_or_404(Subject, id=subject_id)
+    else: subject = get_object_or_404(Subject, id=subject_id, faculty=request.user)
+    
+    if request.method == "POST":
+        name = subject.name
+        subject.delete()
+        messages.success(request, f"Subject '{name}' deleted.")
+        return redirect('manage_subjects')
+    return render(request, 'academics/confirm_delete.html', {'object': subject, 'type': 'Subject'})
+
+
+# --- B. Faculty Manager ---
+@login_required
+def manage_faculty(request):
+    if not (request.user.is_superuser or request.user.groups.filter(name='Faculty_Admin').exists()):
+         return redirect('faculty_dashboard')
+    try:
+        faculty_group = Group.objects.get(name='Faculty')
+        faculty_members = User.objects.filter(groups=faculty_group).order_by('first_name')
+    except Group.DoesNotExist:
+        faculty_members = []
+    return render(request, 'academics/manage_faculty.html', {'faculty': faculty_members})
+
+@login_required
+def add_faculty(request):
+    if not (request.user.is_superuser or request.user.groups.filter(name='Faculty_Admin').exists()):
+         return redirect('faculty_dashboard')
+    if request.method == 'POST':
+        form = FacultyForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            group, _ = Group.objects.get_or_create(name='Faculty')
+            user.groups.add(group)
+            messages.success(request, f"Faculty '{user.username}' created!")
+            return redirect('manage_faculty')
+    else:
+        form = FacultyForm()
+    return render(request, 'academics/faculty_form.html', {'form': form, 'title': 'Add New Faculty'})
+
+
+# --- C. Batch Manager ---
+@login_required
+def manage_batches(request):
+    if not (request.user.is_superuser or request.user.groups.filter(name='Faculty_Admin').exists()):
+         return redirect('faculty_dashboard')
+    batches = Batch.objects.all().select_related('department', 'semester').order_by('department', 'name')
+    return render(request, 'academics/manage_batches.html', {'batches': batches})
+
+@login_required
+def add_batch(request):
+    if not (request.user.is_superuser or request.user.groups.filter(name='Faculty_Admin').exists()):
+         return redirect('faculty_dashboard')
+    if request.method == 'POST':
+        form = BatchForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Batch created!")
+            return redirect('manage_batches')
+    else:
+        form = BatchForm()
+    return render(request, 'academics/form_template.html', {'form': form, 'title': 'Add New Batch'})
+
+
+# --- D. Session Manager ---
+@login_required
+def manage_sessions(request):
+    if not (request.user.is_superuser or request.user.groups.filter(name='Faculty_Admin').exists()):
+         return redirect('faculty_dashboard')
+    sessions = AcademicSession.objects.all().order_by('-id')
+    return render(request, 'academics/manage_sessions.html', {'sessions': sessions})
+
+@login_required
+def add_session(request):
+    if not (request.user.is_superuser or request.user.groups.filter(name='Faculty_Admin').exists()):
+         return redirect('faculty_dashboard')
+    if request.method == 'POST':
+        form = SessionForm(request.POST)
+        if form.is_valid():
+            s = form.save()
+            if s.is_active:
+                AcademicSession.objects.exclude(id=s.id).update(is_active=False)
+            messages.success(request, "Session created!")
+            return redirect('manage_sessions')
+    else:
+        form = SessionForm()
+    return render(request, 'academics/session_form.html', {'form': form, 'title': 'Start New Session'})
+
+@login_required
+def activate_session(request, session_id):
+    if not (request.user.is_superuser or request.user.groups.filter(name='Faculty_Admin').exists()):
+         return redirect('faculty_dashboard')
+    session = get_object_or_404(AcademicSession, id=session_id)
+    AcademicSession.objects.update(is_active=False)
+    session.is_active = True
+    session.save()
+    messages.success(request, f"✅ Session '{session.name}' is now ACTIVE.")
+    return redirect('manage_sessions')
 
 
 # ==========================================
@@ -134,11 +261,11 @@ def get_semesters(request):
 
 @login_required
 def get_batches(request):
-    department_id = request.GET.get('department')
-    semester_id = request.GET.get('semester')
-    if not department_id or not semester_id:
+    dept_id = request.GET.get('department')
+    sem_id = request.GET.get('semester')
+    if not dept_id or not sem_id:
         return render(request, 'academics/partials/options_batch.html', {'options': []})
-    batches = Batch.objects.filter(department_id=department_id, semester_id=semester_id).order_by('name')
+    batches = Batch.objects.filter(department_id=dept_id, semester_id=sem_id).order_by('name')
     return render(request, 'academics/partials/options_batch.html', {'options': batches})
 
 @login_required
@@ -156,3 +283,39 @@ def get_topics(request):
         return render(request, 'academics/partials/options_topic.html', {'options': []})
     topics = Topic.objects.filter(chapter_id=chapter_id).order_by('name')
     return render(request, 'academics/partials/options_topic.html', {'options': topics})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@login_required
+def faculty_dashboard(request):
+    # 1. Get User Groups
+    user_groups = list(request.user.groups.values_list('name', flat=True))
+    
+    # 2. Get Recent Stats
+    recent_stats = ClassLog.objects.filter(faculty=request.user) \
+        .values('subject__name', 'batch__name', 'batch__semester__name') \
+        .annotate(total_hours=Sum('duration_hours'), last_update=Max('created_at')) \
+        .order_by('-last_update')[:4]
+        
+    # FIX: Get the Active Session to display on the dashboard
+    current_session = AcademicSession.objects.filter(is_active=True).first()
+
+    return render(request, 'users/dashboard.html', {
+        'user_groups': user_groups,
+        'recent_stats': recent_stats,
+        'current_session': current_session  # <--- Sending this to HTML
+    })
+
+
+
