@@ -18,11 +18,10 @@ class User(AbstractUser):
         default=STAFF
     )
 
-    department = models.ForeignKey(
+    departments = models.ManyToManyField(
         Department,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
+        blank=True,
+        related_name='faculties'
     )
 
     subject=models.ManyToManyField(
