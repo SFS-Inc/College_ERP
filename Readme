@@ -1,7 +1,105 @@
-# College ERP System
+📘 College ERP System
 
-Monorepo for College ERP application.
+A role-based College ERP backend built using Django.
+The system models real academic workflows such as faculty, departments, and subjects, and is designed to be extended with a frontend interface.
 
-- backend: Django REST API
-- frontend: React application
-- docs: Architecture and documentation
+
+🚀 Project Status
+✅ Phase 1 — Completed
+
+Custom User model (Faculty, Admin, Student-ready)
+
+Department management
+
+Subject management
+
+Faculty ↔ Department (Many-to-Many)
+
+Faculty ↔ Subject (Many-to-Many)
+
+Admin panel for full control
+
+Phase 1 focuses on data modeling and relationships and is now locked.
+
+
+🟡 Phase 2 — In Progress (Starting Jan 6)
+
+Django views
+
+HTML-based frontend (Django templates)
+
+Faculty dashboard
+
+Authentication (login/logout)
+
+Frontend will be implemented using server-rendered HTML for faster development and learning.
+
+
+
+
+
+🛠 Tech Stack
+
+Backend: Django (Python)
+
+Database: SQLite (PostgreSQL planned later)
+
+Frontend: HTML, CSS (Django Templates)
+
+Authentication: Django Auth System
+
+
+
+
+▶️ How to Run the Project Locally
+git clone <repo-url>
+cd College_ERP/backend
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+
+
+Access admin panel at:
+http://127.0.0.1:8000/admin/
+
+
+
+
+
+📌 Notes
+
+Student functionality is planned for later phases
+
+PostgreSQL and REST APIs will be added in future phases
+
+Phase 1 models will not be modified unless a bug is found
+
+
+
+
+📅 Roadmap
+
+Phase 1: Data Models & Relationships ✅
+
+Phase 2: HTML Frontend & Views 🟡
+
+Phase 3: APIs (Optional)
+
+Phase 4: PostgreSQL + Deployment
+
+
+
+
+
+
+👨‍💻 Author
+Johan Joseph
+
+ERP Project Members/Contributors:
+
+Rajaneesh
+Pranav
+Asritha
