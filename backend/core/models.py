@@ -32,6 +32,23 @@ class Subject(models.Model):
         return self.name
 
 
+class Chapter(models.Model):
+    """
+    Represents a chapter within a subject (e.g., Chapter 1: Introduction).
+    """
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='chapters')
+    name = models.CharField(max_length=100)
+    number = models.PositiveIntegerField()
+    description = models.TextField(blank=True, null=True)
+
+    class Meta:
+        ordering = ['number']
+        unique_together = ['subject', 'number']
+
+    def __str__(self):
+        return f"Ch {self.number}: {self.name}"
+
+
 class Batch(models.Model):
     """
     Represents academic batches (e.g., 2024-2028).

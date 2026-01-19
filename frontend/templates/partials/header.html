@@ -1,0 +1,54 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm border-bottom border-secondary">
+    <div class="container-fluid px-4">
+
+        <a class="navbar-brand d-flex align-items-center gap-2 fw-semibold" href="#">
+            <i class="fa-solid fa-rocket text-primary"></i>
+            <span class="text-light">Team NASA ERP</span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#erpNavbar"
+            aria-controls="erpNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="erpNavbar">
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'dashboard' %}">
+                        <i class="fa-solid fa-chart-line me-1"></i> Dashboard
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fa-solid fa-database me-1"></i> Modules
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fa-solid fa-gear me-1"></i> Settings
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    {% if user.is_authenticated %}
+                    <form action="{% url 'logout' %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-light btn-sm ms-lg-3">
+                            <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
+                        </button>
+                    </form>
+                    {% else %}
+                    <a class="btn btn-outline-light btn-sm ms-lg-3" href="{% url 'login' %}">
+                        <i class="fa-solid fa-right-to-bracket me-1"></i> Login
+                    </a>
+                    {% endif %}
+                </li>
+
+            </ul>
+        </div>
+
+    </div>
+</nav>

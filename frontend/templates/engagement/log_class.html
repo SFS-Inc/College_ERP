@@ -1,0 +1,195 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Class - College ERP</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+    {% include 'partials/header.html' %}
+
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main class="flex-grow-1 py-4 fade-in">
+        <div class="container">
+
+            <!-- Header -->
+            <div class="row align-items-center mb-4">
+                <div class="col-auto">
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary rounded-circle">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
+                </div>
+                <div class="col">
+                    <h1 class="display-6 fw-bold text-gradient mb-0">Log Class</h1>
+                    <p class="text-secondary mb-0">Record details for your lecture</p>
+                </div>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card border-secondary shadow-lg">
+                        <div class="card-body p-4">
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="row g-3">
+                                    <!-- Row 1: Context -->
+                                    <div class="col-md-4">
+                                        <label class="form-label text-secondary small">Date</label>
+                                        <input type="date" name="date" class="form-control" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label text-secondary small">Batch</label>
+                                        <select name="batch" class="form-select" required>
+                                            <option selected disabled value="">Select Batch...</option>
+                                            {% for batch in batches %}
+                                            <option value="{{ batch.id }}">{{ batch }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label text-secondary small">Semester</label>
+                                        <select class="form-select" disabled>
+                                            <option selected>Display Only</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label text-secondary small">Subject</label>
+                                        <select name="subject" class="form-select" required>
+                                            <option selected disabled value="">Select subject...</option>
+                                            {% for subject in subjects %}
+                                            <option value="{{ subject.id }}">{{ subject.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <!-- Row 2: Content (Compact) -->
+                                    <div class="col-md-4">
+                                        <label class="form-label text-secondary small">Chapter</label>
+                                        <select name="chapter" class="form-select">
+                                            <option selected disabled value="">Select Chapter...</option>
+                                            {% for chapter in chapters %}
+                                            <option value="{{ chapter.id }}">{{ chapter }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label text-secondary small">Topic</label>
+                                        <input type="text" name="topic" class="form-control"
+                                            placeholder="e.g. Binary Trees">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label text-secondary small">Hours</label>
+                                        <input type="number" step="0.5" name="hours" class="form-control"
+                                            placeholder="1.0" required>
+                                    </div>
+
+                                    <!-- Row 3: Metrics & Flags -->
+                                    <div class="col-md-4">
+                                        <label class="form-label text-secondary small">Total Students</label>
+                                        <input type="number" name="total_students" class="form-control" placeholder="60"
+                                            required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label text-secondary small">Present</label>
+                                        <input type="number" name="present" class="form-control" placeholder="0"
+                                            required>
+                                    </div>
+                                    <div class="col-md-4 d-flex align-items-end">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" name="is_extra_class"
+                                                id="extraClassCheck">
+                                            <label class="form-check-label text-light small" for="extraClassCheck">
+                                                Extra Class
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Row 4: Optional -->
+                                    <div class="col-12">
+                                        <textarea name="notes" class="form-control" rows="2"
+                                            placeholder="Add an optional note..."></textarea>
+                                    </div>
+
+                                    <div class="col-12 mt-3">
+                                        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm">
+                                            <i class="fa-solid fa-check me-2"></i> Log Class
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    {% include 'partials/footer.html' %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set default date to today
+            const dateInput = document.querySelector('input[type="date"]');
+            if (dateInput) {
+                dateInput.valueAsDate = new Date();
+            }
+
+            // Auto-fetch semester on batch change
+            const batchSelect = document.querySelector('select[name="batch"]');
+            const semesterSelect = document.querySelector('select[disabled]'); // The disabled display-only select
+
+            if (batchSelect && semesterSelect) {
+                batchSelect.addEventListener('change', async function () {
+                    const batchId = this.value;
+                    if (!batchId) return;
+
+                    // Show loading state
+                    const originalText = semesterSelect.options[0].text;
+                    semesterSelect.options[0].text = "Fetching...";
+
+                    try {
+                        const response = await fetch(`/engagement/api/get-semester/?batch_id=${batchId}`);
+                        const data = await response.json();
+
+                        if (data.success) {
+                            semesterSelect.innerHTML = `<option selected>${data.semester_name}</option>`;
+                        } else {
+                            semesterSelect.innerHTML = `<option selected>No Active Semester</option>`;
+                        }
+                    } catch (error) {
+                        console.error('Error fetching semester:', error);
+                        semesterSelect.innerHTML = `<option selected>Error loading</option>`;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
