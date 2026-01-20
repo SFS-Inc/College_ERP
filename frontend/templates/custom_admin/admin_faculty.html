@@ -1,51 +1,134 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+{% block title %}Manage Faculty - Admin{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Faculty - Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link href="{% static 'css/style.css' %}" rel="stylesheet">
-</head>
+{% block content %}
+<!-- Header -->
+<div class="row align-items-center mb-4">
+    <div class="col-auto">
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary rounded-circle">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+    </div>
+    <div class="col">
+        <h1 class="display-6 fw-bold text-gradient mb-0">Manage Faculty</h1>
+        <p class="text-secondary mb-0">Add, edit, or deactivate faculty accounts</p>
+    </div>
+</div>
 
-<body class="d-flex flex-column min-vh-100">
-    {% include 'partials/header.html' %}
+<!-- Toolbar -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
+    <div class="input-group" style="max-width: 300px;">
+        <span class="input-group-text bg-dark border-secondary text-secondary"><i
+                class="fa-solid fa-magnifying-glass"></i></span>
+        <input type="text" class="form-control bg-dark border-secondary text-light" placeholder="Search faculty..."
+            disabled>
+    </div>
+    <button class="btn btn-primary shadow-sm">
+        <i class="fa-solid fa-user-plus me-2"></i>Add Faculty
+    </button>
+</div>
 
-    <main class="flex-grow-1 py-4 fade-in">
-        <div class="container">
-            <div class="row align-items-center mb-4">
-                <div class="col-auto">
-                    <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary rounded-circle">
-                        <i class="fa-solid fa-arrow-left"></i>
-                    </a>
-                </div>
-                <div class="col">
-                    <h1 class="display-6 fw-bold text-gradient mb-0">Manage Faculty</h1>
-                    <p class="text-secondary mb-0">Add, view, and manage faculty members.</p>
-                </div>
-                <div class="col-auto">
-                    <button class="btn btn-primary">
-                        <i class="fa-solid fa-plus me-2"></i>Add Faculty
-                    </button>
-                </div>
-            </div>
-
-            <!-- Content Placeholder -->
-            <div class="card border-secondary shadow-lg">
-                <div class="card-body p-5 text-center text-secondary">
-                    <i class="fa-solid fa-users display-4 mb-3"></i>
-                    <p>Faculty list will be displayed here.</p>
-                </div>
-            </div>
+<!-- Faculty Table -->
+<div class="card border-secondary shadow-lg">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-dark-subtle text-secondary small text-uppercase">
+                    <tr>
+                        <th class="ps-4 py-3">Faculty Name</th>
+                        <th>Username</th>
+                        <th>Departments</th>
+                        <th>Subjects</th>
+                        <th>Last Login</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for faculty in faculty_list %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center me-3"
+                                    style="width: 40px; height: 40px;">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-white">{{ faculty.get_full_name|default:faculty.username }}
+                                    </div>
+                                    <div class="text-secondary small">{{ faculty.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-light">{{ faculty.username }}</td>
+                        <td>
+                            {% for dept in faculty.departments.all %}
+                            <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle me-1">{{
+                                dept.name }}</span>
+                            {% empty %}
+                            <span class="text-secondary small">-</span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for subj in faculty.subject.all|slice:":2" %}
+                            <span class="badge bg-dark border border-secondary text-secondary me-1">{{ subj.code
+                                }}</span>
+                            {% endfor %}
+                            {% if faculty.subject.count > 2 %}
+                            <span class="badge bg-dark border border-secondary text-secondary">+{{
+                                faculty.subject.count|add:"-2" }}</span>
+                            {% endif %}
+                            {% if faculty.subject.count == 0 %}
+                            <span class="text-secondary small">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-secondary small">
+                            {% if faculty.last_login %}
+                            {{ faculty.last_login|date:"M d, Y" }}
+                            {% else %}
+                            Never
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if faculty.is_active %}
+                            <span class="badge bg-success-subtle text-success rounded-pill px-3"><i
+                                    class="fa-solid fa-check me-1"></i>Active</span>
+                            {% else %}
+                            <span class="badge bg-danger-subtle text-danger rounded-pill px-3">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary border-0" type="button"
+                                    data-bs-toggle="dropdown">
+                                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end bg-dark border-secondary shadow-lg">
+                                    <li><a class="dropdown-item text-light" href="#"><i
+                                                class="fa-solid fa-pen me-2 text-primary"></i>Edit Profile</a></li>
+                                    <li><a class="dropdown-item text-light" href="#"><i
+                                                class="fa-solid fa-book me-2 text-warning"></i>Manage Subjects</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider border-secondary">
+                                    </li>
+                                    <li><a class="dropdown-item text-danger" href="#"><i
+                                                class="fa-solid fa-user-slash me-2"></i>Deactivate</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <i class="fa-solid fa-ghost text-secondary display-4 mb-3"></i>
+                            <p class="text-secondary">No faculty members found.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-    </main>
-
-    {% include 'partials/footer.html' %}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-
-</html>
+    </div>
+</div>
+{% endblock %}

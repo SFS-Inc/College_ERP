@@ -133,11 +133,21 @@ def log_history(request):
 
 # --- Admin Modules ---
 
+from django.contrib.auth import get_user_model
+
 @login_required
 def admin_faculty(request):
     if not (request.user.is_superuser or getattr(request.user, "is_faculty_admin", False)):
         return HttpResponseForbidden("Access Denied")
-    return render(request, 'custom_admin/admin_faculty.html')
+    
+    User = get_user_model()
+    # Fetch all faculty members (excluding students if any exist)
+    faculty_members = User.objects.filter(role='STAFF').order_by('first_name', 'username')
+    
+    context = {
+        'faculty_list': faculty_members
+    }
+    return render(request, 'custom_admin/admin_faculty.html', context)
 
 @login_required
 def admin_academics(request):
